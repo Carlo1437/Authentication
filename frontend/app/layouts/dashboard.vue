@@ -47,12 +47,10 @@ const navItems = [
 
 <template>
   <div class="min-h-screen bg-slate-950 text-white font-sans flex">
-    <!-- Sidebar -->
     <aside
       class="fixed inset-y-0 left-0 z-30 flex flex-col w-64 bg-slate-900/80 backdrop-blur-xl border-r border-white/5 transition-transform duration-300"
       :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
     >
-      <!-- Logo -->
       <div class="flex items-center gap-3 px-6 h-16 border-b border-white/5">
         <div
           class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-sm font-bold shadow-lg shadow-indigo-500/25"
@@ -65,7 +63,6 @@ const navItems = [
         >
       </div>
 
-      <!-- Navigation -->
       <nav class="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
         <NuxtLink
           v-for="item in navItems"
@@ -85,15 +82,17 @@ const navItems = [
 
       <!-- User & Logout -->
       <div class="px-3 pb-6 space-y-3">
-        <div
-          v-if="userData"
-          class="px-4 py-3 bg-white/5 rounded-xl border border-white/5"
-        >
-          <p class="text-sm font-medium text-white truncate">
-            {{ userData.name }}
-          </p>
-          <p class="text-xs text-slate-500 truncate">{{ userData.email }}</p>
-        </div>
+        <ClientOnly>
+          <div
+            v-if="userData"
+            class="px-4 py-3 bg-white/5 rounded-xl border border-white/5"
+          >
+            <p class="text-sm font-medium text-white truncate">
+              {{ userData.name }}
+            </p>
+            <p class="text-xs text-slate-500 truncate">{{ userData.email }}</p>
+          </div>
+        </ClientOnly>
         <button
           @click="logout"
           class="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl text-sm font-medium text-red-400 bg-red-500/10 border border-red-500/10 hover:bg-red-500/20 hover:border-red-500/20 transition-all duration-200"
@@ -117,12 +116,10 @@ const navItems = [
       </div>
     </aside>
 
-    <!-- Main content area -->
     <div
       class="flex-1 flex flex-col transition-all duration-300"
       :class="sidebarOpen ? 'ml-64' : 'ml-0'"
     >
-      <!-- Top Header -->
       <header
         class="sticky top-0 z-20 flex items-center justify-between h-16 px-6 bg-slate-950/80 backdrop-blur-xl border-b border-white/5"
       >
@@ -147,23 +144,24 @@ const navItems = [
         </button>
 
         <div class="flex items-center gap-3">
-          <div
-            v-if="userData"
-            class="flex items-center gap-3 px-4 py-2 bg-white/5 rounded-xl border border-white/5"
-          >
+          <ClientOnly>
             <div
-              class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-xs font-bold"
+              v-if="userData"
+              class="flex items-center gap-3 px-4 py-2 bg-white/5 rounded-xl border border-white/5"
             >
-              {{ userData.name?.charAt(0)?.toUpperCase() }}
+              <div
+                class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-xs font-bold"
+              >
+                {{ userData.name?.charAt(0)?.toUpperCase() }}
+              </div>
+              <span class="text-sm font-medium text-slate-300">{{
+                userData.name
+              }}</span>
             </div>
-            <span class="text-sm font-medium text-slate-300">{{
-              userData.name
-            }}</span>
-          </div>
+          </ClientOnly>
         </div>
       </header>
 
-      <!-- Page Content -->
       <main class="flex-1 p-6">
         <slot />
       </main>

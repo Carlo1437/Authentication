@@ -1,13 +1,35 @@
 <script setup>
 import { useCookie } from "#app";
-import { ref, computed, onMounted, definePageMeta } from "#imports";
+import { ref, onMounted, definePageMeta, watch } from "#imports";
 
 const token = useCookie("auth_token");
 const users = ref([]);
 const isLoading = ref(true);
 const searchQuery = ref("");
+let searchTimeout = null;
 
-// Edit modal state
+watch(searchQuery, () => {
+  if (searchTimeout) clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    fetchUsers(1);
+  }, 300);
+});
+const successMessage = ref("");
+let successTimeout = null;
+
+const currentPage = ref(1);
+const lastPage = ref(1);
+const totalUsers = ref(0);
+const perPage = 10;
+
+const showSuccess = (message) => {
+  successMessage.value = message;
+  if (successTimeout) clearTimeout(successTimeout);
+  successTimeout = setTimeout(() => {
+    successMessage.value = "";
+  }, 3000);
+};
+
 const showEditModal = ref(false);
 const editUser = ref({
   id: null,
@@ -29,13 +51,22 @@ onMounted(async () => {
   await fetchUsers();
 });
 
-const fetchUsers = async () => {
+const fetchUsers = async (page = 1) => {
   isLoading.value = true;
   try {
-    const data = await $fetch("http://localhost:8000/api/users", {
+    const paramObj = { perPage, page };
+    if (searchQuery.value) {
+      paramObj.search = searchQuery.value;
+    }
+    const params = new URLSearchParams(paramObj);
+
+    const data = await $fetch(`http://localhost:8000/api/users?${params}`, {
       headers: { Authorization: `Bearer ${token.value}` },
     });
-    users.value = data;
+    users.value = data.data;
+    currentPage.value = data.current_page;
+    lastPage.value = data.last_page;
+    totalUsers.value = data.total;
   } catch (error) {
     console.error("Failed to fetch users:", error);
   } finally {
@@ -43,14 +74,13 @@ const fetchUsers = async () => {
   }
 };
 
-const filteredUsers = computed(() => {
-  if (!searchQuery.value) return users.value;
-  const q = searchQuery.value.toLowerCase();
-  return users.value.filter(
-    (u) =>
-      u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q),
-  );
-});
+const prevPage = () => {
+  if (currentPage.value > 1) fetchUsers(currentPage.value - 1);
+};
+
+const nextPage = () => {
+  if (currentPage.value < lastPage.value) fetchUsers(currentPage.value + 1);
+};
 
 const formatDate = (dateStr) => {
   return new Date(dateStr).toLocaleDateString("en-US", {
@@ -89,7 +119,7 @@ const submitEdit = async () => {
       body,
     });
     showEditModal.value = false;
-    await fetchUsers();
+    await fetchUsers(currentPage.value);
   } catch (error) {
     if (error.data?.errors) {
       const first = Object.values(error.data.errors)[0];
@@ -116,7 +146,7 @@ const confirmDelete = async () => {
     });
     showDeleteModal.value = false;
     deleteTarget.value = null;
-    await fetchUsers();
+    await fetchUsers(currentPage.value);
   } catch (error) {
     console.error("Failed to delete user:", error);
   } finally {
@@ -132,6 +162,50 @@ definePageMeta({
 
 <template>
   <div>
+    <Transition name="alert">
+      <div
+        v-if="successMessage"
+        class="fixed top-6 right-6 z-[60] flex items-center gap-3 px-5 py-3.5 bg-emerald-500/15 border border-emerald-500/30 rounded-xl shadow-lg shadow-emerald-500/10 backdrop-blur-sm"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-5 h-5 text-emerald-400 shrink-0"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <span class="text-sm font-medium text-emerald-300">{{
+          successMessage
+        }}</span>
+        <button
+          @click="successMessage = ''"
+          class="ml-2 p-1 text-emerald-400/60 hover:text-emerald-300 transition-colors"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+    </Transition>
+
     <div
       class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8"
     >
@@ -146,199 +220,254 @@ definePageMeta({
         </p>
       </div>
 
-      <div class="relative w-full sm:w-72">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-          />
-        </svg>
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search users..."
-          class="w-full pl-10 pr-4 py-2.5 bg-slate-900/60 border border-white/10 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/40 transition-all duration-200"
+      <div class="flex items-center gap-3">
+        <AddUserModal
+          @user-added="
+            showSuccess('User added successfully!');
+            fetchUsers();
+          "
         />
-      </div>
-    </div>
 
-    <div
-      class="bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-white/5 overflow-hidden"
-    >
-      <div v-if="isLoading" class="p-8 space-y-4">
-        <div
-          v-for="i in 5"
-          :key="i"
-          class="flex items-center gap-4 animate-pulse"
-        >
-          <div class="w-10 h-10 rounded-full bg-slate-800"></div>
-          <div class="flex-1 space-y-2">
-            <div class="h-4 bg-slate-800 rounded-lg w-1/3"></div>
-            <div class="h-3 bg-slate-800/60 rounded-lg w-1/2"></div>
-          </div>
-          <div class="h-3 bg-slate-800/40 rounded-lg w-24"></div>
-        </div>
-      </div>
-
-      <div
-        v-else-if="filteredUsers.length === 0"
-        class="flex flex-col items-center justify-center py-20 px-4"
-      >
-        <div
-          class="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mb-4"
-        >
+        <div class="relative w-72">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            class="w-8 h-8 text-slate-600"
+            class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
-            stroke-width="1.5"
+            stroke-width="2"
           >
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
-              d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
+              d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
             />
           </svg>
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search users..."
+            class="w-full pl-10 pr-4 py-2.5 bg-slate-900/60 border border-white/10 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/40 transition-all duration-200"
+          />
         </div>
-        <p class="text-slate-400 font-medium">No users found</p>
-        <p class="text-slate-600 text-sm mt-1">
-          {{
-            searchQuery
-              ? "Try a different search term"
-              : "No users have registered yet"
-          }}
-        </p>
-      </div>
-
-      <table v-else class="w-full">
-        <thead>
-          <tr class="border-b border-white/5">
-            <th
-              class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
-            >
-              #
-            </th>
-            <th
-              class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
-            >
-              User
-            </th>
-            <th
-              class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell"
-            >
-              Email
-            </th>
-            <th
-              class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell"
-            >
-              Registered
-            </th>
-            <th
-              class="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider"
-            >
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-white/5">
-          <tr
-            v-for="(u, index) in filteredUsers"
-            :key="u.id"
-            class="group hover:bg-white/[0.02] transition-colors duration-150"
-          >
-            <td class="px-6 py-4">
-              <span class="text-xs text-slate-600 font-mono">{{
-                index + 1
-              }}</span>
-            </td>
-            <td class="px-6 py-4">
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-xs font-bold shadow-lg shadow-indigo-500/15 shrink-0"
-                >
-                  {{ u.name?.charAt(0)?.toUpperCase() }}
-                </div>
-                <div>
-                  <p class="text-sm font-medium text-white">{{ u.name }}</p>
-                  <p class="text-xs text-slate-500 md:hidden">{{ u.email }}</p>
-                </div>
-              </div>
-            </td>
-            <td class="px-6 py-4 hidden md:table-cell">
-              <span class="text-sm text-slate-400">{{ u.email }}</span>
-            </td>
-            <td class="px-6 py-4 hidden sm:table-cell">
-              <span class="text-sm text-slate-500">{{
-                formatDate(u.created_at)
-              }}</span>
-            </td>
-            <td class="px-6 py-4">
-              <div class="flex items-center justify-end gap-2">
-                <button
-                  @click="openEdit(u)"
-                  class="p-2 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all duration-200"
-                  title="Edit user"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
-                    />
-                  </svg>
-                </button>
-                <button
-                  @click="openDelete(u)"
-                  class="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200"
-                  title="Delete user"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div
-        v-if="!isLoading && filteredUsers.length > 0"
-        class="px-6 py-4 border-t border-white/5 flex items-center justify-between"
-      >
-        <p class="text-xs text-slate-600">
-          Showing {{ filteredUsers.length }} of {{ users.length }} users
-        </p>
       </div>
     </div>
+
+    <ClientOnly>
+      <div
+        class="bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-white/5 overflow-hidden"
+      >
+        <div v-if="isLoading" class="p-8 space-y-4">
+          <div
+            v-for="i in 5"
+            :key="i"
+            class="flex items-center gap-4 animate-pulse"
+          >
+            <div class="w-10 h-10 rounded-full bg-slate-800"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-4 bg-slate-800 rounded-lg w-1/3"></div>
+              <div class="h-3 bg-slate-800/60 rounded-lg w-1/2"></div>
+            </div>
+            <div class="h-3 bg-slate-800/40 rounded-lg w-24"></div>
+          </div>
+        </div>
+
+        <div
+          v-else-if="users.length === 0"
+          class="flex flex-col items-center justify-center py-20 px-4"
+        >
+          <div
+            class="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mb-4"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-8 h-8 text-slate-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
+              />
+            </svg>
+          </div>
+          <p class="text-slate-400 font-medium">No users found</p>
+          <p class="text-slate-600 text-sm mt-1">
+            No users have registered yet
+          </p>
+        </div>
+
+        <table v-else class="w-full">
+          <thead>
+            <tr class="border-b border-white/5">
+              <th
+                class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
+              >
+                #
+              </th>
+              <th
+                class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
+              >
+                User
+              </th>
+              <th
+                class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell"
+              >
+                Email
+              </th>
+              <th
+                class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell"
+              >
+                Registered
+              </th>
+              <th
+                class="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider"
+              >
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5">
+            <tr
+              v-for="(u, index) in users"
+              :key="u.id"
+              class="group hover:bg-white/[0.02] transition-colors duration-150"
+            >
+              <td class="px-6 py-4">
+                <span class="text-xs text-slate-600 font-mono">{{
+                  (currentPage - 1) * perPage + index + 1
+                }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-xs font-bold shadow-lg shadow-indigo-500/15 shrink-0"
+                  >
+                    {{ u.name?.charAt(0)?.toUpperCase() }}
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-white">{{ u.name }}</p>
+                    <p class="text-xs text-slate-500 md:hidden">
+                      {{ u.email }}
+                    </p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 hidden md:table-cell">
+                <span class="text-sm text-slate-400">{{ u.email }}</span>
+              </td>
+              <td class="px-6 py-4 hidden sm:table-cell">
+                <span class="text-sm text-slate-500">{{
+                  formatDate(u.created_at)
+                }}</span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center justify-end gap-2">
+                  <button
+                    @click="openEdit(u)"
+                    class="p-2 rounded-lg text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all duration-200"
+                    title="Edit user"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    @click="openDelete(u)"
+                    class="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200"
+                    title="Delete user"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div
+          v-if="!isLoading && users.length > 0"
+          class="flex items-center justify-between px-6 py-4 border-t border-white/5"
+        >
+          <span class="text-sm text-slate-500">
+            Page {{ currentPage }} of {{ lastPage }} &mdash;
+            {{ totalUsers }} total users
+          </span>
+          <div class="flex items-center gap-2">
+            <button
+              @click="prevPage"
+              :disabled="currentPage <= 1"
+              class="px-4 py-2 rounded-xl text-sm font-medium border transition-all duration-200"
+              :class="
+                currentPage <= 1
+                  ? 'text-slate-600 border-white/5 cursor-not-allowed'
+                  : 'text-slate-300 border-white/10 hover:bg-white/5 hover:text-white'
+              "
+            >
+              Previous
+            </button>
+            <button
+              @click="nextPage"
+              :disabled="currentPage >= lastPage"
+              class="px-4 py-2 rounded-xl text-sm font-medium border transition-all duration-200"
+              :class="
+                currentPage >= lastPage
+                  ? 'text-slate-600 border-white/5 cursor-not-allowed'
+                  : 'text-slate-300 border-white/10 hover:bg-white/5 hover:text-white'
+              "
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <template #fallback>
+        <div
+          class="bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-white/5 overflow-hidden p-8 space-y-4"
+        >
+          <div
+            v-for="i in 5"
+            :key="i"
+            class="flex items-center gap-4 animate-pulse"
+          >
+            <div class="w-10 h-10 rounded-full bg-slate-800"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-4 bg-slate-800 rounded-lg w-1/3"></div>
+              <div class="h-3 bg-slate-800/60 rounded-lg w-1/2"></div>
+            </div>
+            <div class="h-3 bg-slate-800/40 rounded-lg w-24"></div>
+          </div>
+        </div>
+      </template>
+    </ClientOnly>
 
     <Teleport to="body">
       <Transition name="modal">
@@ -592,13 +721,27 @@ definePageMeta({
   </div>
 </template>
 
-  <style scoped>
-  .modal-enter-active,
-  .modal-leave-active {
-    transition: opacity 0.2s ease;
-  }
-  .modal-enter-from,
-  .modal-leave-to {
-    opacity: 0;
-  }
-  </style>
+<style scoped>
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.2s ease;
+}
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+.alert-enter-active {
+  transition: all 0.3s ease-out;
+}
+.alert-leave-active {
+  transition: all 0.2s ease-in;
+}
+.alert-enter-from {
+  opacity: 0;
+  transform: translateX(100%);
+}
+.alert-leave-to {
+  opacity: 0;
+  transform: translateX(100%);
+}
+</style>

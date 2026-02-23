@@ -2,49 +2,54 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\IndexUserRequest;
+use App\Http\Requests\UpdateUserRequest;
+use App\Http\Requests\StoreUserRequest;
 use App\Models\User;
+use App\Services\UserService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index()
-    {
-        $users = User::select('id', 'name', 'email', 'created_at')->orderBy('created_at', 'desc')->get();
 
-        return response()->json($users);
+    public function __construct
+    (protected UserService $userService){}
+    public function index(IndexUserRequest $request): JsonResponse
+    {
+      
+          $validated = $request->validated();
+          $search = $validated['search'] ?? null;
+          $perPage = $validated['perPage'] ?? 10;
+          $users = $this->userService->index($search, $perPage);
+
+          return response()->json($users);
+        
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateUserRequest $request, User $user): JsonResponse
     {
-        $user = User::findOrFail($id);
-
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
-            'password' => 'nullable|string|min:8|confirmed',
-        ]);
-
-        $data = [
-            'name' => $request->name,
-            'email' => $request->email,
-        ];
-
-        if ($request->filled('password')) {
-            $data['password'] = Hash::make($request->password);
-        }
-
-        $user->update($data);
-
-        return response()->json($user);
+       $user = $this->userService->update($user, $request->validated());
+       return response()->json($user);
     }
 
-    public function destroy($id)
+     public function store(StoreUserRequest $request): JsonResponse
     {
-        $user = User::findOrFail($id);
-        $user->tokens()->delete();
-        $user->delete();
+       $user = $this->userService->create($request->validated());
+       return response()->json($user);
+    }
 
-        return response()->json(['message' => 'User deleted successfully']);
+    public function show(User $user): JsonResponse
+    {
+       return response()->json($user);
+        
+    }
+
+    public function destroy(User $user): JsonResponse
+    {
+        $this->userService->delete($user);
+       return response()->json(null, 204);
+        
     }
 }

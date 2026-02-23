@@ -19,6 +19,8 @@ class AuthController extends Controller
             'device_name' => 'required',
         ]);
 
+        
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
