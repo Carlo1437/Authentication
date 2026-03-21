@@ -14,8 +14,7 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
 
-    public function __construct
-    (protected UserService $userService){}
+    public function __construct(protected UserService $userService){}
     public function index(IndexUserRequest $request): JsonResponse
     {
       
@@ -27,19 +26,17 @@ class UserController extends Controller
           return response()->json($users);
         
     }
-
+  public function store(StoreUserRequest $request): JsonResponse
+    {
+       $user = $this->userService->create($request->validated());
+       return response()->json($user);
+    }
     public function update(UpdateUserRequest $request, User $user): JsonResponse
     {
        $user = $this->userService->update($user, $request->validated());
        return response()->json($user);
     }
-
-     public function store(StoreUserRequest $request): JsonResponse
-    {
-       $user = $this->userService->create($request->validated());
-       return response()->json($user);
-    }
-
+    
     public function show(User $user): JsonResponse
     {
        return response()->json($user);

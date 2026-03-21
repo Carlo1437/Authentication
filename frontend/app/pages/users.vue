@@ -145,7 +145,7 @@ const confirmDelete = async () => {
       headers: { Authorization: `Bearer ${token.value}` },
     });
     showDeleteModal.value = false;
-    deleteTarget.value = null;
+    deleteTarget.value = null; 
     await fetchUsers(currentPage.value);
   } catch (error) {
     console.error("Failed to delete user:", error);
@@ -259,7 +259,7 @@ definePageMeta({
       >
         <div v-if="isLoading" class="p-8 space-y-4">
           <div
-            v-for="i in 5"
+            v-for="i in 2"
             :key="i"
             class="flex items-center gap-4 animate-pulse"
           >

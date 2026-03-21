@@ -1,0 +1,5 @@
+frontend/app/pages/index.vue
+frontend/app/pages/login.vue
+frontend/app/pages/middleware/guest.ts
+frontend/app/pages/register.vue
+frontend/app/pages/users.vue

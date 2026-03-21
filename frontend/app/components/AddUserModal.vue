@@ -12,6 +12,7 @@ const newUser = ref({
   password: "",
   password_confirmation: "",
 });
+
 const showNewPassword = ref(false);
 const showNewConfirmPassword = ref(false);
 const addError = ref("");

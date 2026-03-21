@@ -1,0 +1,12 @@
+file:///C:/Users/ASUS/Desktop/Authentication/tmp_migrate.mjs:67
+      const regex = new RegExp(\`\\\\b\${key.replace(/[/]/g, '\\\\$&')}\\\\b\`, 'g');
+                               ^
+
+SyntaxError: Invalid or unexpected token
+    at compileSourceTextModule (node:internal/modules/esm/utils:338:16)
+    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:102:18)
+    at #translate (node:internal/modules/esm/loader:468:12)
+    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:515:27)
+    at async ModuleJob._link (node:internal/modules/esm/module_job:115:19)
+
+Node.js v22.14.0
