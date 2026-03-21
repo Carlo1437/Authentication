@@ -7,4 +7,7 @@ export default defineNuxtConfig({
   devServer: {
     host: "localhost",
   },
+  nitro: {
+    preset: "vercel",
+  },
 });
