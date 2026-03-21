@@ -2,10 +2,11 @@
 export default {
   darkMode: "class",
   content: [
+    "./app.vue",
+    "./app/**/*.{vue,js,ts}",
     "./components/**/*.{vue,js,ts}",
     "./layouts/**/*.vue",
     "./pages/**/*.vue",
-    "./app.vue",
     "./plugins/**/*.{js,ts}",
   ],
   theme: {
