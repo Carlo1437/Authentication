@@ -82,7 +82,7 @@ definePageMeta({
       >
         <div class="text-center mb-10">
           <h2
-            class="text-4xl font-bold mb-2 bg-red-800 to-blue-200 bg-clip-text text-transparent"
+            class="text-4xl font-bold mb-2 bg-gray-700 to-gray-200 bg-clip-text text-transparent"
           >
             Welcome Back
           </h2>

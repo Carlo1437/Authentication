@@ -1,37 +1,55 @@
 <script setup>
 import { ref, reactive } from "vue";
+import { addVehicleRegistration } from "~/api/motor/post";
+
+const emit = defineEmits(["close", "vehicle-registration-added"]);
+
+const notification = reactive({
+  show: false,
+  message: "",
+  type: "success", // success, error
+});
+
+const showNotification = (message, type = "success") => {
+  notification.message = message;
+  notification.type = type;
+  notification.show = true;
+  setTimeout(() => {
+    notification.show = false;
+  }, 3000);
+};
 
 const form = reactive({
-  // Owner Information
-  fullName: "",
-  email: "",
-  contactNumber: "",
-  residentialAddress: "",
-
-  // Vehicle Details
-  vehicleType: "",
-  plateNumber: "",
-  registrationDate: "",
-  engineNumber: "",
-  chassisNumber: "",
-
-  // Documents
+  full_name: "",
+  email_address: "",
+  phone_number: "",
+  address: "",
+  vehicle_type: "",
+  plate_number: "",
+  registration_date: "",
+  engine_number: "",
+  chassis_number: "",
   files: [],
+  status: "pending",
 });
+const closeModal = () => {
+  emit("close");
+};
 
 const isDragging = ref(false);
 
 const resetForm = () => {
-  form.fullName = "";
-  form.email = "";
-  form.contactNumber = "";
-  form.residentialAddress = "";
-  form.vehicleType = "";
-  form.plateNumber = "";
-  form.registrationDate = "";
-  form.engineNumber = "";
-  form.chassisNumber = "";
+  form.full_name = "";
+  form.email_address = "";
+  form.phone_number = "";
+  form.address = "";
+  form.vehicle_type = "";
+  form.plate_number = "";
+  form.registration_date = "";
+  form.engine_number = "";
+  form.chassis_number = "";
   form.files = [];
+  form.status = "pending";
 };
 
 const handleFileUpload = (event) => {
@@ -45,15 +63,88 @@ const onDrop = (event) => {
   form.files = [...form.files, ...droppedFiles];
 };
 
-const submitRegistration = () => {
-  console.log("Registration submitted:", form);
-  // Implementation for submission logic goes here
+const submitVehicleRegistration = async () => {
+  try {
+    const formData = new FormData();
+    formData.append("full_name", form.full_name);
+    formData.append("email_address", form.email_address);
+    formData.append("phone_number", form.phone_number);
+    formData.append("address", form.address);
+    formData.append("vehicle_type", form.vehicle_type);
+    formData.append("plate_number", form.plate_number);
+    formData.append("registration_date", form.registration_date);
+    formData.append("engine_number", form.engine_number);
+    formData.append("chassis_number", form.chassis_number);
+    formData.append("status", form.status);
+
+    if (form.files && form.files.length > 0) {
+      formData.append("document", form.files[0]);
+    }
+
+    const response = await addVehicleRegistration(formData);
+
+    if (response && response.id) {
+      showNotification("Vehicle registration submitted successfully!", "success");
+      setTimeout(() => {
+        emit("vehicle-registration-added");
+        resetForm();
+      }, 1500);
+    } else {
+      showNotification(
+        response?.message || "Failed to add vehicle registration.",
+        "error"
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    showNotification("An error occurred during submission.", "error");
+  }
 };
 </script>
 
 <template>
-  <div class="min-h-screen bg-background-light font-display">
-    <!-- Header -->
+  <div class="min-h-screen bg-background-light font-display relative">
+    <!-- Success/Error Notification -->
+    <Transition enter-active-class="transform ease-out duration-300 transition"
+                enter-from-class="translate-y-[-100%] opacity-0"
+                enter-to-class="translate-y-0 opacity-100"
+                leave-active-class="transition ease-in duration-200"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0">
+      <div v-if="notification.show" 
+           class="fixed top-24 right-4 z-[9999] min-w-[300px] max-w-[450px] pointer-events-auto">
+        <div :class="[
+          'p-4 rounded-xl shadow-2xl flex items-center gap-4 border',
+          notification.type === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 'bg-rose-50 border-rose-100 text-rose-800'
+        ]">
+          <div :class="[
+            'w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm',
+            notification.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'
+          ]">
+            <svg v-if="notification.type === 'success'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+            </svg>
+            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          
+          <div class="flex-grow">
+            <h3 class="font-bold text-sm leading-tight">
+              {{ notification.type === 'success' ? 'Success' : 'Error' }}
+            </h3>
+            <p class="text-xs font-medium opacity-90 mt-0.5">{{ notification.message }}</p>
+          </div>
+
+          <!-- Close button -->
+          <button @click="notification.show = false" class="shrink-0 hover:scale-110 transition-transform p-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </Transition>
     <header
       class="bg-primary py-4 px-6 md:px-12 flex items-center justify-between sticky top-0 z-50 shadow-sm border-b border-white/10"
     >
@@ -75,16 +166,14 @@ const submitRegistration = () => {
         </div>
       </div>
       <nav class="hidden md:flex items-center gap-10">
-        <NuxtLink to="/customer">
-          <a
-            href=""
-            class="text-white/80 hover:text-white font-semibold transition-all duration-200 relative group"
-          >
-            Home
-            <span
-              class="absolute -bottom-1 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"
-            ></span>
-          </a>
+        <NuxtLink
+          to="/customer"
+          class="text-white/80 hover:text-white font-semibold transition-all duration-200 relative group"
+        >
+          Home
+          <span
+            class="absolute -bottom-1 left-0 w-0 h-0.5 bg-white transition-all duration-300 group-hover:w-full"
+          ></span>
         </NuxtLink>
         <a
           href="#"
@@ -129,7 +218,7 @@ const submitRegistration = () => {
             </p>
           </div>
 
-          <form @submit.prevent="submitRegistration" class="space-y-12">
+          <form @submit.prevent="submitVehicleRegistration" class="space-y-12">
             <!-- Section 1: Owner Information -->
             <section class="space-y-6">
               <div class="flex items-center gap-4 group">
@@ -149,7 +238,7 @@ const submitRegistration = () => {
                     >Full Name</label
                   >
                   <input
-                    v-model="form.fullName"
+                    v-model="form.full_name"
                     type="text"
                     placeholder="John Doe"
                     class="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 text-slate-800 placeholder:text-slate-400"
@@ -160,7 +249,7 @@ const submitRegistration = () => {
                     >Email Address</label
                   >
                   <input
-                    v-model="form.email"
+                    v-model="form.email_address"
                     type="email"
                     placeholder="john@example.com"
                     class="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 text-slate-800 placeholder:text-slate-400"
@@ -171,9 +260,9 @@ const submitRegistration = () => {
                     >Contact Number</label
                   >
                   <input
-                    v-model="form.contactNumber"
+                    v-model="form.phone_number"
                     type="tel"
-                    placeholder="+1 (555) 000-0000"
+                    placeholder="+63 912 345 6789"
                     class="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 text-slate-800 placeholder:text-slate-400"
                   />
                 </div>
@@ -182,7 +271,7 @@ const submitRegistration = () => {
                     >Residential Address</label
                   >
                   <textarea
-                    v-model="form.residentialAddress"
+                    v-model="form.address"
                     placeholder="Street name, City, State, ZIP"
                     rows="3"
                     class="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 text-slate-800 placeholder:text-slate-400 resize-none"
@@ -210,7 +299,7 @@ const submitRegistration = () => {
                     >Vehicle Type</label
                   >
                   <select
-                    v-model="form.vehicleType"
+                    v-model="form.vehicle_type"
                     class="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 text-slate-800 appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%234f566b%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:20px_20px] bg-[right_12px_center] bg-no-repeat"
                   >
                     <option value="" disabled>Select Type</option>
@@ -225,7 +314,7 @@ const submitRegistration = () => {
                     >Plate Number</label
                   >
                   <input
-                    v-model="form.plateNumber"
+                    v-model="form.plate_number"
                     type="text"
                     placeholder="ABC-1234"
                     class="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 text-slate-800 placeholder:text-slate-400"
@@ -236,7 +325,7 @@ const submitRegistration = () => {
                     >Registration Date</label
                   >
                   <input
-                    v-model="form.registrationDate"
+                    v-model="form.registration_date"
                     type="date"
                     class="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 text-slate-800"
                   />
@@ -246,7 +335,7 @@ const submitRegistration = () => {
                     >Engine Number</label
                   >
                   <input
-                    v-model="form.engineNumber"
+                    v-model="form.engine_number"
                     type="text"
                     placeholder="E-XXXXXXX"
                     class="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 text-slate-800 placeholder:text-slate-400"
@@ -257,7 +346,7 @@ const submitRegistration = () => {
                     >Chassis Number (VIN)</label
                   >
                   <input
-                    v-model="form.chassisNumber"
+                    v-model="form.chassis_number"
                     type="text"
                     placeholder="VIN-17-DIGIT-NUMBER"
                     class="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 text-slate-800 placeholder:text-slate-400"
@@ -424,7 +513,6 @@ const submitRegistration = () => {
   font-family: "Public Sans", sans-serif;
 }
 
-/* Custom styles for sections and transitions */
 .animate-in {
   animation-duration: 0.7s;
   animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -458,10 +546,9 @@ const submitRegistration = () => {
   animation-name: slideInFromBottom;
 }
 
-/* Customizing Date Input */
 input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
-  filter: invert(47%) sepia(13%) font-bold saturate(400%) hue-rotate(180deg)
+  filter: invert(47%) sepia(13%) saturate(400%) hue-rotate(180deg)
     brightness(95%) contrast(80%);
   opacity: 0.6;
 }
@@ -470,7 +557,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
 }
 
-/* Custom Scrollbar for Textarea */
 textarea::-webkit-scrollbar {
   width: 6px;
 }

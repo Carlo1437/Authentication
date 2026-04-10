@@ -30,7 +30,7 @@ const toggleTheme = () => {
 };
 
 useHead({
-  title: "Register Your Vehicle Online - VehicReg",
+  title: "Register Your Vehicle Online - Vehicle Registration System",
   meta: [
     {
       name: "description",
@@ -43,7 +43,7 @@ useHead({
 
 <template>
   <div
-    class="min-h-screen bg-slate-50 dark:bg-slate-900 dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-200 selection:bg-blue-500 selection:text-white flex flex-col pt-16 transition-colors duration-300"
+    class="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-200 selection:bg-blue-500 selection:text-white flex flex-col pt-16 transition-colors duration-300"
   >
     <nav
       class="fixed top-0 inset-x-0 z-50 bg-white dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 transition-colors duration-300"
@@ -67,24 +67,24 @@ useHead({
         >
           <a
             href="#how-it-works"
-            class="hover:text-blue-600 transition-colors transition-colors duration-300"
+            class="hover:text-blue-600 transition-colors duration-300"
             >How It Works</a
           >
           <a
             href="#features"
-            class="hover:text-blue-600 transition-colors transition-colors duration-300"
+            class="hover:text-blue-600 transition-colors duration-300"
             >Features</a
           >
           <a
             href="#requirements"
-            class="hover:text-blue-600 transition-colors transition-colors duration-300"
+            class="hover:text-blue-600 transition-colors duration-300"
             >Requirements</a
           >
         </div>
         <div class="flex items-center gap-4 transition-colors duration-300">
           <button
             @click="toggleTheme"
-            class="p-2 mr-2 rounded-full text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors transition-colors duration-300"
+            class="p-2 mr-2 rounded-full text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors duration-300"
             aria-label="Toggle Dark Mode"
           >
             <svg
@@ -118,12 +118,12 @@ useHead({
           </button>
           <NuxtLink
             to="/login"
-            class="text-sm font-medium text-slate-600 dark:text-slate-400 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors transition-colors duration-300"
+            class="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300"
             >Log in</NuxtLink
           >
           <NuxtLink
             to="/register"
-            class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-full shadow-sm hover:shadow transition-all transition-colors duration-300"
+            class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-full shadow-sm hover:shadow transition-all duration-300"
           >
             Get Started
           </NuxtLink>
@@ -177,11 +177,11 @@ useHead({
           >
             <NuxtLink
               to="/customer/OnlineRegistrationPage"
-              class="w-full sm:w-auto inline-flex justify-center items-center px-8 py-3.5 rounded-full text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/30 transition-all hover:-translate-y-0.5 group transition-colors duration-300"
+              class="w-full sm:w-auto inline-flex justify-center items-center px-8 py-3.5 rounded-full text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/30 transition-all hover:-translate-y-0.5 group duration-300"
             >
               Register Now
               <svg
-                class="w-5 h-5 ml-2 -mr-1 group-hover:translate-x-1 transition-transform transition-colors duration-300"
+                class="w-5 h-5 ml-2 -mr-1 group-hover:translate-x-1 transition duration-300"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -196,7 +196,7 @@ useHead({
             </NuxtLink>
             <a
               href="/customer/LearnMorepage"
-              class="w-full sm:w-auto inline-flex justify-center items-center px-8 py-3.5 rounded-full text-base font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 dark:bg-slate-900 dark:bg-slate-950 hover:border-slate-300 dark:border-slate-600 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-300"
+              class="w-full sm:w-auto inline-flex justify-center items-center px-8 py-3.5 rounded-full text-base font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 duration-300"
             >
               Learn More
             </a>
@@ -242,7 +242,7 @@ useHead({
                 >
                   <img
                     src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=800"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 transition-colors duration-300"
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-700"
                     alt="Private Vehicles"
                   />
                   <div
@@ -265,7 +265,7 @@ useHead({
                 >
                   <img
                     src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&q=80&w=800"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 transition-colors duration-300"
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-700"
                     alt="Commercial Trucks"
                   />
                   <div
@@ -288,7 +288,7 @@ useHead({
                 >
                   <img
                     src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&q=80&w=800"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 transition-colors duration-300"
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-700"
                     alt="Motorcycles"
                   />
                   <div
@@ -311,7 +311,7 @@ useHead({
                 >
                   <img
                     src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?q=80&w=800&auto=format&fit=crop"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 transition-colors duration-300"
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-700"
                     alt="Electric Vehicles"
                   />
                   <div
@@ -334,7 +334,7 @@ useHead({
                 >
                   <img
                     src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=800"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 transition-colors duration-300"
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-700"
                     alt="Public Utility"
                   />
                   <div
@@ -363,7 +363,7 @@ useHead({
                 >
                   <img
                     src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=800"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 transition-colors duration-300"
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-700"
                     alt="Private Vehicles"
                   />
                   <div
@@ -386,7 +386,7 @@ useHead({
                 >
                   <img
                     src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&q=80&w=800"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 transition-colors duration-300"
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-700"
                     alt="Commercial Trucks"
                   />
                   <div
@@ -409,7 +409,7 @@ useHead({
                 >
                   <img
                     src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&q=80&w=800"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 transition-colors duration-300"
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-700"
                     alt="Motorcycles"
                   />
                   <div
@@ -432,7 +432,7 @@ useHead({
                 >
                   <img
                     src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?q=80&w=800&auto=format&fit=crop"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 transition-colors duration-300"
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-700"
                     alt="Electric Vehicles"
                   />
                   <div
@@ -455,7 +455,7 @@ useHead({
                 >
                   <img
                     src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=800"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 transition-colors duration-300"
+                    class="w-full h-full object-cover group-hover:scale-105 transition duration-700"
                     alt="Public Utility"
                   />
                   <div
@@ -518,7 +518,7 @@ useHead({
             class="relative z-10 flex flex-col items-center text-center group transition-colors duration-300"
           >
             <div
-              class="w-24 h-24 bg-white dark:bg-slate-800 rounded-2xl shadow-xl shadow-slate-200/50 flex items-center justify-center border border-slate-100 dark:border-slate-700 text-blue-600 mb-6 group-hover:scale-110 transition-transform duration-300 transition-colors duration-300"
+              class="w-24 h-24 bg-white dark:bg-slate-800 rounded-2xl shadow-xl shadow-slate-200/50 flex items-center justify-center border border-slate-100 dark:border-slate-700 text-blue-600 mb-6 group-hover:scale-110 transition duration-300"
             >
               <svg
                 class="w-10 h-10 transition-colors duration-300"
@@ -551,7 +551,7 @@ useHead({
             class="relative z-10 flex flex-col items-center text-center group transition-colors duration-300"
           >
             <div
-              class="w-24 h-24 bg-white dark:bg-slate-800 rounded-2xl shadow-xl shadow-slate-200/50 flex items-center justify-center border border-slate-100 dark:border-slate-700 text-emerald-500 mb-6 group-hover:scale-110 transition-transform duration-300 transition-colors duration-300"
+              class="w-24 h-24 bg-white dark:bg-slate-800 rounded-2xl shadow-xl shadow-slate-200/50 flex items-center justify-center border border-slate-100 dark:border-slate-700 text-emerald-500 mb-6 group-hover:scale-110 transition duration-300"
             >
               <svg
                 class="w-10 h-10 transition-colors duration-300"
@@ -584,7 +584,7 @@ useHead({
             class="relative z-10 flex flex-col items-center text-center group transition-colors duration-300"
           >
             <div
-              class="w-24 h-24 bg-white dark:bg-slate-800 rounded-2xl shadow-xl shadow-slate-200/50 flex items-center justify-center border border-slate-100 dark:border-slate-700 text-blue-600 mb-6 group-hover:scale-110 transition-transform duration-300 transition-colors duration-300"
+              class="w-24 h-24 bg-white dark:bg-slate-800 rounded-2xl shadow-xl shadow-slate-200/50 flex items-center justify-center border border-slate-100 dark:border-slate-700 text-blue-600 mb-6 group-hover:scale-110 transition duration-300"
             >
               <svg
                 class="w-10 h-10 transition-colors duration-300"
@@ -618,7 +618,7 @@ useHead({
 
     <section
       id="features"
-      class="py-24 bg-slate-50 dark:bg-slate-900 dark:bg-slate-950 border-y border-slate-200 dark:border-slate-700/60 transition-colors duration-300"
+      class="py-24 bg-slate-50 dark:bg-slate-950 border-y border-slate-200 dark:border-slate-700/60 transition-colors duration-300"
     >
       <div
         class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-colors duration-300"
@@ -833,7 +833,7 @@ useHead({
               </p>
               <NuxtLink
                 to="/requirements-guide"
-                class="inline-flex items-center text-white font-semibold hover:text-blue-200 transition-colors transition-colors duration-300"
+                class="inline-flex items-center text-white font-semibold hover:text-blue-200 transition-colors duration-300"
               >
                 Read full guidelines
                 <svg
@@ -964,7 +964,7 @@ useHead({
     </section>
 
     <section
-      class="py-24 bg-slate-50 dark:bg-slate-900 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-700/60 transition-colors duration-300"
+      class="py-24 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-700/60 transition-colors duration-300"
     >
       <div
         class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-colors duration-300"
@@ -986,7 +986,7 @@ useHead({
           class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 transition-colors duration-300"
         >
           <div
-            class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition transition-colors duration-300"
+            class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition duration-300"
           >
             <div
               class="flex items-center gap-1 mb-4 text-emerald-500 transition-colors duration-300"
@@ -1031,7 +1031,7 @@ useHead({
           </div>
 
           <div
-            class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition transition-colors duration-300"
+            class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition duration-300"
           >
             <div
               class="flex items-center gap-1 mb-4 text-emerald-500 transition-colors duration-300"
@@ -1076,7 +1076,7 @@ useHead({
           </div>
 
           <div
-            class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition hidden md:block lg:block transition-colors duration-300"
+            class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition hidden md:block lg:block duration-300"
           >
             <div
               class="flex items-center gap-1 mb-4 text-emerald-500 transition-colors duration-300"
@@ -1150,7 +1150,7 @@ useHead({
         </p>
         <NuxtLink
           to="/customer/OnlineRegistrationPage"
-          class="inline-flex justify-center items-center px-8 py-4 rounded-full text-lg font-bold text-blue-900 bg-white dark:bg-slate-800 hover:bg-slate-100 shadow-xl shadow-white/10 transition-transform hover:-translate-y-1 transition-colors duration-300"
+          class="inline-flex justify-center items-center px-8 py-4 rounded-full text-lg font-bold text-blue-900 bg-white dark:bg-slate-800 hover:bg-slate-100 shadow-xl shadow-white/10 transition hover:-translate-y-1 duration-300"
         >
           Start Your Registration
         </NuxtLink>
@@ -1198,30 +1198,22 @@ useHead({
               class="space-y-3 text-sm text-slate-600 dark:text-slate-400 transition-colors duration-300"
             >
               <li>
-                <a
-                  href="#"
-                  class="hover:text-blue-600 transition transition-colors duration-300"
+                <a href="#" class="hover:text-blue-600 transition duration-300"
                   >Vehicle Registration</a
                 >
               </li>
               <li>
-                <a
-                  href="#"
-                  class="hover:text-blue-600 transition transition-colors duration-300"
+                <a href="#" class="hover:text-blue-600 transition duration-300"
                   >Status Tracking</a
                 >
               </li>
               <li>
-                <a
-                  href="#"
-                  class="hover:text-blue-600 transition transition-colors duration-300"
+                <a href="#" class="hover:text-blue-600 transition duration-300"
                   >Payment Portal</a
                 >
               </li>
               <li>
-                <a
-                  href="#"
-                  class="hover:text-blue-600 transition transition-colors duration-300"
+                <a href="#" class="hover:text-blue-600 transition duration-300"
                   >Document Support</a
                 >
               </li>
@@ -1238,23 +1230,17 @@ useHead({
               class="space-y-3 text-sm text-slate-600 dark:text-slate-400 transition-colors duration-300"
             >
               <li>
-                <a
-                  href="#"
-                  class="hover:text-blue-600 transition transition-colors duration-300"
+                <a href="#" class="hover:text-blue-600 transition duration-300"
                   >Privacy Policy</a
                 >
               </li>
               <li>
-                <a
-                  href="#"
-                  class="hover:text-blue-600 transition transition-colors duration-300"
+                <a href="#" class="hover:text-blue-600 transition duration-300"
                   >Terms of Service</a
                 >
               </li>
               <li>
-                <a
-                  href="#"
-                  class="hover:text-blue-600 transition transition-colors duration-300"
+                <a href="#" class="hover:text-blue-600 transition duration-300"
                   >Cookies Policy</a
                 >
               </li>

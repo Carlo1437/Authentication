@@ -145,7 +145,7 @@ const confirmDelete = async () => {
       headers: { Authorization: `Bearer ${token.value}` },
     });
     showDeleteModal.value = false;
-    deleteTarget.value = null; 
+    deleteTarget.value = null;
     await fetchUsers(currentPage.value);
   } catch (error) {
     console.error("Failed to delete user:", error);
